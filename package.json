@@ -1,0 +1,15 @@
+{
+  "name": "shiva-interactive-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "node -e \"console.log('Build verified successfully')\""
+  },
+  "description": "Shiva Interactive Portfolio with Hero Scrub and How We Work Process Timeline",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shiva — Creative Engineering & Experience</title>
+
+<!-- Online Web Fonts & Google Fonts -->
+<link href="https://db.onlinewebfonts.com/c/5ac3fe7c6abd2f62067f266d89671492?family=HelveticaNowDisplay-Medium" rel="stylesheet"/>
+<link href="https://db.onlinewebfonts.com/c/1aa3377e489837a26d019bba501e779d?family=HelveticaNowDisplayW01-Rg" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          heading: ['var(--font-heading)'],
+          body: ['var(--font-body)'],
+          handwritten: ['Caveat', 'cursive'],
+          mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          sans: ['Plus Jakarta Sans', 'var(--font-body)', 'sans-serif'],
+          serif: ['Georgia', 'serif'],
+        },
+        boxShadow: {
+          'glow-red': '0 16px 40px -8px rgba(255, 42, 42, 0.45), 0 4px 16px -2px rgba(255, 42, 42, 0.3)',
+        }
+      }
+    }
+  }
+</script>
+
+<!-- React 18 & ReactDOM 18 -->
+<script crossorigin="" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<!-- Module shim for UMD & Babel standalone loading -->
+<script>
+  window.exports = {};
+  window.module = { exports: window.exports };
+  window.require = function(mod) {
+    if (mod === 'react') return window.React;
+    if (mod === 'react/jsx-runtime' || mod === 'react/jsx-dev-runtime') {
+      return {
+        jsx: function(type, props, key) {
+          var p = Object.assign({}, props);
+          if (key !== undefined) p.key = key;
+          return React.createElement(type, p);
+        },
+        jsxs: function(type, props, key) {
+          var p = Object.assign({}, props);
+          if (key !== undefined) p.key = key;
+          return React.createElement(type, p);
+        },
+        Fragment: React.Fragment
+      };
+    }
+    if (mod === 'framer-motion') return window.Motion;
+    if (mod === 'lucide-react') return window.LucideReact;
+    return window[mod];
+  };
+</script>
+
+<!-- Framer Motion & Lucide Icons -->
+<script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
+<script>
+  window.Motion = window.Motion || window.module.exports || window.exports;
+  window.module = { exports: {} };
+  window.exports = window.module.exports;
+</script>
+
+<script src="https://unpkg.com/lucide-react@0.454.0/dist/umd/lucide-react.js"></script>
+<script>
+  window.LucideReact = window.LucideReact || window.module.exports || window.exports;
+  window.module = { exports: {} };
+  window.exports = window.module.exports;
+</script>
+
+<!-- Babel Standalone for JSX compilation -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<style>
+  :root {
+    --font-heading: 'HelveticaNowDisplay-Medium', 'Helvetica Neue', Arial, sans-serif;
+    --font-body: 'HelveticaNowDisplayW01-Rg', 'Helvetica Neue', Arial, sans-serif;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: var(--font-body);
+    background-color: #be123c;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .animate-blink {
+    animation: blink 1s step-end infinite;
+  }
+
+  /* Video styling: contained within hero section */
+  .hero-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    object-fit: cover;
+    object-position: 70% center;
+    pointer-events: none;
+  }
+
+  /* Grid pattern for ProcessTimeline */
+  .bg-grid-pattern {
+    background-size: 32px 32px;
+    background-image: 
+      linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  }
+
+  .font-handwritten {
+    font-family: 'Caveat', cursive;
+  }
+
+  .shadow-glow-red {
+    box-shadow: 0 16px 40px -8px rgba(255, 42, 42, 0.45), 0 4px 16px -2px rgba(255, 42, 42, 0.3);
+  }
+</style>
+
+<!-- Load existing ProcessTimeline.jsx component without rewriting or replacing its content -->
+<script type="text/babel" data-presets="react,es2015" src="../ProcessTimeline.jsx"></script>
+</head>
+
+<body class="w-full min-h-screen select-none md:select-auto bg-[#be123c]">
+<div class="relative w-full min-h-screen" id="root"></div>
+
+<script type="text/babel">
+  const { useState, useEffect, useRef, useCallback } = React;
+
+  // Custom useTypewriter Hook
+  function useTypewriter(text, speed = 38, startDelay = 600) {
+    const [displayed, setDisplayed] = useState("");
+    const [done, setDone] = useState(false);
+
+    useEffect(() => {
+      let index = 0;
+      let timer = null;
+      const delayTimeout = setTimeout(() => {
+        timer = setInterval(() => {
+          index++;
+          setDisplayed(text.slice(0, index));
+          if (index >= text.length) {
+            clearInterval(timer);
+            setDone(true);
+          }
+        }, speed);
+      }, startDelay);
+
+      return () => {
+        clearTimeout(delayTimeout);
+        if (timer) clearInterval(timer);
+      };
+    }, [text, speed, startDelay]);
+
+    return { displayed, done };
+  }
+
+  function App() {
+    const videoRef = useRef(null);
+    const isSeekingRef = useRef(false);
+    const targetTimeRef = useRef(0);
+    const prevXRef = useRef(null);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [pillsVisible, setPillsVisible] = useState(false);
+    const [copied, setCopied] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+
+    // Typewriter hook
+    const typewriterContent = "Glad you stopped in. Good taste tends to find us. Now, what are we building?";
+    const { displayed, done } = useTypewriter(typewriterContent, 38, 600);
+
+    // Pill buttons reveal delay (400ms after load)
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setPillsVisible(true);
+      }, 400);
+      return () => clearTimeout(timer);
+    }, []);
+
+    // Navbar scroll listener for smooth dark frosted transition
+    useEffect(() => {
+      const handleScroll = () => {
+        setScrolled(window.scrollY > 80);
+      };
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Reactive listener to ensure ProcessTimeline component is detected upon load
+    const [timelineReady, setTimelineReady] = useState(
+      () => !!(window.ProcessTimeline || window.exports?.default || window.module?.exports?.default)
+    );
+
+    useEffect(() => {
+      if (timelineReady) return;
+      const checkInterval = setInterval(() => {
+        if (window.ProcessTimeline || window.exports?.default || window.module?.exports?.default) {
+          setTimelineReady(true);
+          clearInterval(checkInterval);
+        }
+      }, 40);
+      return () => clearInterval(checkInterval);
+    }, [timelineReady]);
+
+    // Video Mouse Scrub Logic
+    useEffect(() => {
+      const video = videoRef.current;
+      if (!video) return;
+
+      const handleLoadedMetadata = () => {
+        if (video.duration) {
+          targetTimeRef.current = video.duration * 0.45;
+          video.currentTime = targetTimeRef.current;
+        }
+      };
+
+      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+
+      const SENSITIVITY = 0.8;
+
+      const handleMouseMove = (e) => {
+        const currentX = e.clientX;
+        if (prevXRef.current === null) {
+          prevXRef.current = currentX;
+          return;
+        }
+
+        const delta = currentX - prevXRef.current;
+        prevXRef.current = currentX;
+
+        if (!video.duration || isNaN(video.duration)) return;
+
+        const timeOffset = (delta / window.innerWidth) * SENSITIVITY * video.duration;
+        targetTimeRef.current = Math.max(0, Math.min(video.duration, targetTimeRef.current + timeOffset));
+
+        if (!isSeekingRef.current) {
+          isSeekingRef.current = true;
+          video.currentTime = targetTimeRef.current;
+        }
+      };
+
+      const handleSeeked = () => {
+        if (!video || !video.duration) return;
+        if (Math.abs(video.currentTime - targetTimeRef.current) > 0.04) {
+          video.currentTime = targetTimeRef.current;
+        } else {
+          isSeekingRef.current = false;
+        }
+      };
+
+      window.addEventListener('mousemove', handleMouseMove);
+      video.addEventListener('seeked', handleSeeked);
+
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        video.removeEventListener('seeked', handleSeeked);
+        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      };
+    }, []);
+
+    const handleCopyEmail = (e) => {
+      e.preventDefault();
+      navigator.clipboard.writeText("sivakunche17@gmail.com").then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }).catch(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      });
+    };
+
+    const scrollToProcess = () => {
+      const target = document.getElementById('process');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    const ProcessTimelineComp = window.ProcessTimeline || window.exports?.default || window.module?.exports?.default;
+
+    return (
+      <div className="relative w-full min-h-screen bg-[#be123c] flex flex-col">
+        {/* NAVBAR */}
+        <header 
+          className={`fixed top-0 left-0 w-full z-50 px-5 sm:px-8 transition-all duration-300 flex justify-between items-center select-none ${
+            scrolled 
+              ? "py-3 sm:py-3.5 bg-black/75 backdrop-blur-md shadow-lg border-b border-white/10" 
+              : "py-4 sm:py-5 bg-transparent"
+          }`}
+        >
+          {/* Logo Left */}
+          <a 
+            href="#" 
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="flex items-center gap-3 cursor-pointer group"
+          >
+            <span 
+              className="text-[21px] sm:text-[26px] tracking-tight text-white leading-none font-medium group-hover:opacity-85 transition-opacity"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
+              Shiva
+            </span>
+            <span 
+              className="text-[25px] sm:text-[30px] text-white leading-none select-none group-hover:rotate-45 transition-transform duration-300 inline-block"
+              style={{ letterSpacing: "-0.02em" }}
+            >
+              ✳︎
+            </span>
+          </a>
+
+          {/* Desktop Nav Links */}
+          <nav className="hidden md:flex items-center text-[22px] lg:text-[23px] text-white space-x-1 font-normal">
+            <a href="#labs" className="hover:opacity-60 transition-opacity">Labs</a>
+            <span>, </span>
+            <button 
+              onClick={scrollToProcess} 
+              className="hover:opacity-60 transition-opacity cursor-pointer font-normal text-inherit bg-transparent border-0 p-0"
+            >
+              Process
+            </button>
+            <span>, </span>
+            <a href="#studio" className="hover:opacity-60 transition-opacity">Studio</a>
+            <span>, </span>
+            <a href="#openings" className="hover:opacity-60 transition-opacity">Openings</a>
+            <span>, </span>
+            <a href="#shop" className="hover:opacity-60 transition-opacity">Shop</a>
+          </nav>
+
+          {/* Desktop CTA */}
+          <div className="hidden md:block">
+            <a 
+              href="https://siva-web-portfolio.web.app/stitch_cinematic_developer_portfolio_landing_page/code.html" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[21px] lg:text-[23px] text-white underline underline-offset-2 hover:opacity-60 transition-opacity"
+            >
+              Get in touch
+            </a>
+          </div>
+
+          {/* Mobile Hamburger Toggle */}
+          <button 
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden flex flex-col justify-center items-center gap-[5px] w-9 h-9 p-1 focus:outline-none z-20"
+            aria-label="Toggle navigation menu"
+          >
+            <span 
+              className={`w-6 h-[2px] bg-white transition-all duration-300 transform ${
+                menuOpen ? "rotate-45 translate-y-[7px]" : ""
+              }`} 
+            />
+            <span 
+              className={`w-6 h-[2px] bg-white transition-all duration-300 ${
+                menuOpen ? "opacity-0" : "opacity-100"
+              }`} 
+            />
+            <span 
+              className={`w-6 h-[2px] bg-white transition-all duration-300 transform ${
+                menuOpen ? "-rotate-45 -translate-y-[7px]" : ""
+              }`} 
+            />
+          </button>
+        </header>
+
+        {/* Mobile Overlay Menu */}
+        <div 
+          className={`md:hidden fixed inset-0 bg-black/95 backdrop-blur-md z-40 flex flex-col justify-center items-start px-8 gap-7 transition-opacity duration-300 ${
+            menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <a 
+            href="#labs" 
+            onClick={() => setMenuOpen(false)}
+            className="text-[30px] text-white font-medium hover:opacity-60 transition-opacity"
+          >
+            Labs
+          </a>
+          <button 
+            onClick={() => {
+              setMenuOpen(false);
+              scrollToProcess();
+            }}
+            className="text-[30px] text-white font-medium hover:opacity-60 transition-opacity text-left bg-transparent border-0 p-0"
+          >
+            Process
+          </button>
+          <a 
+            href="#studio" 
+            onClick={() => setMenuOpen(false)}
+            className="text-[30px] text-white font-medium hover:opacity-60 transition-opacity"
+          >
+            Studio
+          </a>
+          <a 
+            href="#openings" 
+            onClick={() => setMenuOpen(false)}
+            className="text-[30px] text-white font-medium hover:opacity-60 transition-opacity"
+          >
+            Openings
+          </a>
+          <a 
+            href="#shop" 
+            onClick={() => setMenuOpen(false)}
+            className="text-[30px] text-white font-medium hover:opacity-60 transition-opacity"
+          >
+            Shop
+          </a>
+          <div className="pt-4 w-full border-t border-white/20">
+            <a 
+              href="https://siva-web-portfolio.web.app/stitch_cinematic_developer_portfolio_landing_page/code.html" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={() => setMenuOpen(false)}
+              className="text-[28px] text-white underline underline-offset-4 hover:opacity-60 transition-opacity font-medium"
+            >
+              Get in touch
+            </a>
+          </div>
+        </div>
+
+        {/* PAGE 1: HERO SECTION */}
+        <section className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden">
+          {/* Background Video (contained cleanly within hero) */}
+          <video
+            ref={videoRef}
+            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260826_041744_63efcd78-bf7d-4039-99e2-2461e8a61903.mp4"
+            className="hero-video"
+            muted
+            playsInline
+            preload="auto"
+          />
+
+          {/* Fallback gradient backing */}
+          <div className="absolute inset-0 pointer-events-none -z-10 bg-gradient-to-r from-[#ba1622] via-[#d41c2c] to-[#990e19]"></div>
+
+          {/* Hero Main Content */}
+          <main className="relative z-[1] w-full flex-1 flex flex-col justify-end pb-20 md:justify-center md:pb-0 px-5 sm:px-8 md:px-12 pointer-events-none pt-28 sm:pt-32">
+            <div className="max-w-xl relative z-10 pointer-events-auto">
+              
+              {/* 1. Blurred intro label */}
+              <div 
+                className="pointer-events-none select-none mb-5 sm:mb-6 text-white font-normal"
+                style={{
+                  fontSize: "clamp(18px, 4vw, 26px)",
+                  lineHeight: "1.3",
+                  filter: "blur(4px)"
+                }}
+              >
+                Hey there, meet A.R.I.A,<br />
+                Shiva's Adaptive Response Interface Agent
+              </div>
+
+              {/* 2. Typewriter text */}
+              <p 
+                className="text-white mb-5 sm:mb-6 font-normal"
+                style={{
+                  fontSize: "clamp(18px, 4vw, 26px)",
+                  lineHeight: "1.35",
+                  minHeight: "54px"
+                }}
+              >
+                {displayed}
+                {!done && (
+                  <span className="inline-block w-[2px] h-[1.1em] bg-white align-middle ml-[2px] animate-blink" />
+                )}
+              </p>
+
+              {/* 3. Action pill buttons */}
+              <div 
+                className={`flex flex-wrap gap-y-1 transition-all duration-400 ease-out ${
+                  pillsVisible 
+                    ? "opacity-100 translate-y-0" 
+                    : "opacity-0 translate-y-2"
+                }`}
+                style={{
+                  transitionProperty: "opacity, transform",
+                  transitionDuration: "0.4s",
+                  transitionTimingFunction: "ease"
+                }}
+              >
+                {/* 4 White pill buttons */}
+                <button 
+                  className="inline-flex items-center justify-center bg-white text-black border border-black/10 rounded-full text-[13px] sm:text-[15px] px-4 sm:px-5 py-[0.3em] mx-[0.2em] mb-[0.4em] whitespace-nowrap hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer shadow-sm"
+                >
+                  Pitch us an idea
+                </button>
+                <button 
+                  className="inline-flex items-center justify-center bg-white text-black border border-black/10 rounded-full text-[13px] sm:text-[15px] px-4 sm:px-5 py-[0.3em] mx-[0.2em] mb-[0.4em] whitespace-nowrap hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer shadow-sm"
+                >
+                  Come work here
+                </button>
+                <button 
+                  className="inline-flex items-center justify-center bg-white text-black border border-black/10 rounded-full text-[13px] sm:text-[15px] px-4 sm:px-5 py-[0.3em] mx-[0.2em] mb-[0.4em] whitespace-nowrap hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer shadow-sm"
+                >
+                  Send a brief hello
+                </button>
+                <button 
+                  onClick={scrollToProcess}
+                  className="inline-flex items-center justify-center bg-white text-black border border-black/10 rounded-full text-[13px] sm:text-[15px] px-4 sm:px-5 py-[0.3em] mx-[0.2em] mb-[0.4em] whitespace-nowrap hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer shadow-sm group"
+                >
+                  <span>See how we operate</span>
+                  <span className="ml-1.5 text-xs text-neutral-500 group-hover:text-white group-hover:translate-y-0.5 transition-all">↓</span>
+                </button>
+
+                {/* 1 Outline pill button */}
+                <button 
+                  onClick={handleCopyEmail}
+                  title="Click to copy email"
+                  className="inline-flex items-center justify-center text-white bg-transparent border border-white rounded-full text-[13px] sm:text-[15px] px-4 sm:px-5 py-[0.3em] mx-[0.2em] mb-[0.4em] whitespace-nowrap gap-2 sm:gap-3 hover:bg-white hover:text-black transition-colors duration-200 cursor-pointer group"
+                >
+                  <span>
+                    Reach us: <span className="underline underline-offset-1">sivakunche17@gmail.com</span>
+                  </span>
+                  
+                  <svg 
+                    width="12" 
+                    height="12" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2.2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    className="shrink-0 transition-transform group-hover:scale-110"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+
+                  {copied && (
+                    <span className="text-[11px] bg-black text-white px-2 py-0.5 rounded-full ml-1 animate-pulse">
+                      Copied!
+                    </span>
+                  )}
+                </button>
+              </div>
+
+            </div>
+          </main>
+
+          {/* Smooth Transition Scroll Prompt at Hero Bottom */}
+          <div className="relative z-10 w-full flex flex-col items-center pb-8 pt-4 pointer-events-auto">
+            <button
+              onClick={scrollToProcess}
+              className="group flex flex-col items-center gap-2 cursor-pointer focus:outline-none"
+              aria-label="Scroll down to How We Work process section"
+            >
+              <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-white/70 group-hover:text-white transition-colors">
+                Explore How We Work
+              </span>
+              <div className="w-8 h-8 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm flex items-center justify-center group-hover:border-white/50 group-hover:bg-white/20 transition-all duration-300 shadow-sm">
+                <svg 
+                  className="w-4 h-4 text-white group-hover:translate-y-0.5 transition-transform duration-300" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+          </div>
+
+          {/* Seamless Transition Seam at Bottom of Hero */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-black/20 pointer-events-none z-[2]"></div>
+        </section>
+
+        {/* PAGE 2: PROCESS TIMELINE SECTION */}
+        <div className="relative z-10 w-full bg-white shadow-2xl">
+          {ProcessTimelineComp ? (
+            <ProcessTimelineComp />
+          ) : (
+            <div className="w-full py-28 text-center text-black/50 font-mono text-sm">
+              Loading Process Timeline...
+            </div>
+          )}
+        </div>
+
+        {/* WEBSITE FOOTER */}
+        <footer className="relative z-10 w-full bg-[#0d0d0f] text-white pt-16 pb-12 px-6 sm:px-8 lg:px-12 border-t border-neutral-800/80 select-none">
+          <div className="max-w-6xl mx-auto">
+            {/* Top Row: Brand & Navigation */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-12 border-b border-neutral-800">
+              <div className="flex items-center gap-3">
+                <span 
+                  className="text-[26px] tracking-tight text-white leading-none font-medium"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
+                  Shiva
+                </span>
+                <span 
+                  className="text-[30px] text-[#FF2A2A] leading-none select-none"
+                  style={{ letterSpacing: "-0.02em" }}
+                >
+                  ✳︎
+                </span>
+                <span className="text-xs font-mono tracking-widest text-neutral-400 uppercase ml-2 border-l border-neutral-700 pl-3">
+                  Creative Technologist
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6 text-sm text-neutral-400">
+                <a href="#labs" className="hover:text-white transition-colors">Labs</a>
+                <button onClick={scrollToProcess} className="hover:text-white transition-colors bg-transparent border-0 p-0 text-inherit cursor-pointer">
+                  Process
+                </button>
+                <a href="#studio" className="hover:text-white transition-colors">Studio</a>
+                <a href="#openings" className="hover:text-white transition-colors">Openings</a>
+                <a href="#shop" className="hover:text-white transition-colors">Shop</a>
+                <button 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-700 text-xs font-mono hover:border-white hover:text-white transition-all ml-2"
+                >
+                  <span>TOP</span>
+                  <span>↑</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Middle Row: Availability & Direct Contact */}
+            <div className="py-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs font-mono">
+              <div className="flex items-center gap-2.5 text-neutral-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>OPEN FOR SELECT COMMISSIONS & ARCHITECTURAL EXPERIENCES (2026)</span>
+              </div>
+              <a 
+                href="mailto:sivakunche17@gmail.com" 
+                className="text-neutral-300 hover:text-white transition-colors underline underline-offset-4"
+              >
+                sivakunche17@gmail.com
+              </a>
+            </div>
+
+            {/* Bottom Row: Copyright */}
+            <div className="pt-6 border-t border-neutral-800/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500 font-mono">
+              <p>© 2026 Shiva. All rights reserved.</p>
+              <p>Designed with emotion • Engineered with precision</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

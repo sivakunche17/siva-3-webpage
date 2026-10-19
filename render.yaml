@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: siva-3-webpage
+    env: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
